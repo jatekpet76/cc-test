@@ -91,6 +91,7 @@ var coins = null;
 var deposit = [];
 var data = {};
 var money = 1000;
+var buyRate = 1.17;
 // var piece = 10;
 
 conn.connect();
@@ -114,7 +115,7 @@ function Calculate() {
 	// Main loop for dates
 	for (var i=0; i<data[firstCoin].length; i++) {
 		var rec = data[firstCoin][i];
-		var currentDate = rec.regdate.toISOString().substring(0, 10);
+		var currentDate = rec.dt.toISOString().substring(0, 10);
 		
 		// .substring(0, 10);
 		
@@ -132,11 +133,14 @@ function TryToSell(currentDate, dayPos) {
 	deposit.forEach((dep) => {
 		var rec = data[dep.coin][dayPos];
 		
-		if (dep.price_usd*1.19 < rec.price_usd) {
+		dep.vol_usd = dep.piece*rec.price_usd;
+		dep.vol_btc = dep.piece*rec.price_btc;
+		
+		if (dep.price_usd*buyRate < rec.price_usd) {
 			console.log(
 				currentDate,
 				dep.coin,
-				dep.price_usd*1.19 < rec.price_usd, 
+				dep.price_usd*buyRate < rec.price_usd, 
 				rec.price_usd / (dep.price_usd / 100), 
 				dep.price_usd, 
 				rec.price_usd);
@@ -196,6 +200,8 @@ function DepositAdd(piece, rec) {
 		price_btc: rec.price_btc,
 		vol_usd: piece*rec.price_usd,
 		vol_btc: piece*rec.price_btc,
+		buy_vol_usd: piece*rec.price_usd,
+		buy_vol_btc: piece*rec.price_btc,
 		regdate: rec.regdate
 	};
 	
