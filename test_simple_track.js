@@ -88,7 +88,11 @@ function SelectCoins(results) {
 }
 
 var coins = null;
+var deposit = [];
 var data = {};
+var money = 1000;
+// var piece = 10;
+
 conn.connect();
 
 // Start
@@ -105,16 +109,115 @@ function Calculate() {
 		console.log(name, ":", data[name].length);
 	}
 	
+	BuyFirst();
+	
+	// Main loop for dates
 	for (var i=0; i<data[firstCoin].length; i++) {
-		var currentDate = data[firstCoin][i].regdate;
+		var rec = data[firstCoin][i];
+		var currentDate = rec.regdate.toISOString().substring(0, 10);
 		
-		console.log("currentDate:", currentDate);
+		// .substring(0, 10);
+		
+		console.log("currentDate:", currentDate, typeof(currentDate));
+		
+		TryToSell(currentDate, i);
+		
+		// TryToBuy(currentDate, i); -- ???
 	}
 	
 	Bye();
 }	
 
+function TryToSell(currentDate, dayPos) {
+	deposit.forEach((dep) => {
+		var rec = data[dep.coin][dayPos];
+		
+		if (dep.price_usd*1.19 < rec.price_usd) {
+			console.log(
+				currentDate,
+				dep.coin,
+				dep.price_usd*1.19 < rec.price_usd, 
+				rec.price_usd / (dep.price_usd / 100), 
+				dep.price_usd, 
+				rec.price_usd);
+			
+			DepositRemove(dep, rec);
+		}
+	});
+}
+
+function DepositRemove(dep, rec) {
+	console.log("Deposit Remove BEGIN >>> ", money, deposit.length);
+	
+	var moneyAdd = rec.price_usd * dep.piece;
+	
+	money += moneyAdd;
+	
+	var pos = DepositPosByName(dep.coin);
+	
+	deposit.splice(pos, 1);
+	
+	console.dir(dep);
+	console.dir(rec);
+	console.log("Deposit Remove END ", money, deposit.length);
+}
+
+function DepositPosByName(name) {
+	var pos = null;
+	
+	deposit.forEach((val, idx) => {
+		if (val.coin == name) {
+			pos = idx;
+		}
+	});
+	
+	return pos;
+}
+
+function BuyFirst() {
+	var pieceMoney = money / coins.length;
+	
+	for (var name in data) {
+		var rec = data[name][0];
+		
+		var piece = pieceMoney / rec.price_usd;
+		
+		DepositAdd(piece, rec);
+	}
+}
+
+function DepositAdd(piece, rec) {
+	money = money - (piece*rec.price_usd);
+	
+	var dep = {
+		coin: rec.coinid,
+		piece: piece, 
+		price_usd: rec.price_usd,
+		price_btc: rec.price_btc,
+		vol_usd: piece*rec.price_usd,
+		vol_btc: piece*rec.price_btc,
+		regdate: rec.regdate
+	};
+	
+	deposit.push(dep);
+	
+	console.log("Deposit Add BEGIN <<<");
+	console.dir(dep);
+	console.dir(rec);
+	console.log("Deposit Add END <<<");
+}
+
 function Bye() {
+	console.log("Your money: ", money);
+	
+	var depositMoney = 0;
+	deposit.forEach((el) => depositMoney += el.vol_usd);
+	
+	console.log("Your deposit value: ", depositMoney);
+	console.log("Your full value: ", money+depositMoney);
+	
+	console.log("Your deposit: ", deposit);
+	
 	conn.end();
 	console.log("Bye");
 }
