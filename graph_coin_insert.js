@@ -10,7 +10,7 @@ var mode = process.argv[4];
   
  DROP TABLE graph_day;
  CREATE TABLE graph_day (coinid VARCHAR(30),  reglng BIGINT, regdate DATETIME, mcap_by_asup DECIMAL(26, 12), 
-  price_btc DECIMAL(26, 12), price_usd DECIMAL(26, 12), volume_usd DECIMAL(26, 12), PRIMARY KEY (coinid, reglng));
+  price_btc DECIMAL(30, 20), price_usd DECIMAL(30, 20), volume_usd DECIMAL(26, 12), PRIMARY KEY (coinid, reglng));
 
 godzzo@wow230:~/Dokumentumok/Projects/cc-test/grapdata$ ls -la *warns | grep -v 'godzzo    0 dec   20' | wc -l
 62
