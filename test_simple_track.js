@@ -18,6 +18,7 @@ var minDate = process.argv[3];
 var coinFrom = process.argv[4];
 var coinTo = process.argv[5];
 
+// UTIL 
 function Query(sql, cb) {
 	conn.query(sql, function (error, results, fields) {
 		console.log(sql);
@@ -30,6 +31,7 @@ function Query(sql, cb) {
 	});
 }
 
+// Grab coin daily stat
 function InitCoinData(coins, cb) {
 	var coin = coins.shift();
 	
@@ -59,6 +61,7 @@ function InitCoinData(coins, cb) {
 	});
 }
 
+// Select coins by the given exchange
 function InitExchange(exchange, minDate) {
 	var sql = `
 		SELECT * 
@@ -75,6 +78,7 @@ function InitExchange(exchange, minDate) {
 	Query(sql, SelectCoins);
 }
 
+// Grab coins daily stat for the selected coins (by ecxhange)
 function SelectCoins(results) {
 	
 	coins = results.map((rec) => rec.coinid);
@@ -96,9 +100,14 @@ var buyRate = 1.17;
 
 conn.connect();
 
-// Start
-InitExchange(exchange, minDate);
+Start();
 
+// Start
+function Start() {
+	InitExchange(exchange, minDate);
+}
+
+// Tha daily main loop, one peace is one step further
 function Calculate() {
 	
 	console.log("coins:", coins);
@@ -129,6 +138,7 @@ function Calculate() {
 	Bye();
 }	
 
+// Sell if the rate is good of the coin price of the deposits
 function TryToSell(currentDate, dayPos) {
 	deposit.forEach((dep) => {
 		var rec = data[dep.coin][dayPos];
@@ -150,6 +160,7 @@ function TryToSell(currentDate, dayPos) {
 	});
 }
 
+// Sell one deposit completly
 function DepositRemove(dep, rec) {
 	console.log("Deposit Remove BEGIN >>> ", money, deposit.length);
 	
@@ -178,6 +189,7 @@ function DepositPosByName(name) {
 	return pos;
 }
 
+// Make the initial investments, buy all coins with equally shared money (spend all money)
 function BuyFirst() {
 	var pieceMoney = money / coins.length;
 	
@@ -190,6 +202,7 @@ function BuyFirst() {
 	}
 }
 
+// Buy coin by the given piece
 function DepositAdd(piece, rec) {
 	money = money - (piece*rec.price_usd);
 	
@@ -213,6 +226,7 @@ function DepositAdd(piece, rec) {
 	console.log("Deposit Add END <<<");
 }
 
+// Next time bro
 function Bye() {
 	console.log("Your money: ", money);
 	
