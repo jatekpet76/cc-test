@@ -5,6 +5,7 @@ var depo = require('./test_simple_deposit.js');
 var init = require('./test_simple_init.js');
 var buyer = require('./test_simple_buyer.js');
 var seller = require('./test_simple_seller.js');
+var hist = require('./test_simple_history.js');
 
 
 /*
@@ -20,7 +21,13 @@ var ctx = {
 	deposit: [],
 	data: {},
 	money: 1000,
-	buyRate: 1.17,
+	wallet: 0,
+	
+	buyRate: 1.15,
+	sellRate: 0.90,
+	historyLimit: 3,
+	walletLimit: 200,
+	walletPeriod: 28,
 	
 	exchange: process.argv[2],
 	minDate: process.argv[3],
@@ -28,7 +35,19 @@ var ctx = {
 	coinTo: process.argv[5],
 	
 	conn: db.open(),
-	query: db.query
+	query: db.query,
+	
+	dayPos: null,
+	currentDate: null,
+	
+	rec: (cx, coin) => {
+		try {
+			return cx.data[coin][ctx.dayPos]
+		} catch (e) {
+			console.log(coin, ctx.dayPos, ctx.currentDate, e);
+			throw e;
+		}
+	}
 }
 
 Start(ctx);
@@ -58,11 +77,21 @@ function ScanDays(ctx) {
 		var rec = ctx.data[firstCoin][i];
 		var currentDate = rec.dt.toISOString().substring(0, 10);
 		
+		ctx.dayPos =  i;
+		ctx.currentDate =  currentDate;
+		
 		// .substring(0, 10);
 		
 		console.log("currentDate:", currentDate, typeof(currentDate));
 		
+		if (i == 0) {
+			hist.init(ctx, currentDate, i, ctx.historyLimit);
+		} else {
+			hist.save(ctx, currentDate, i);
+		}
+		
 		seller.tryTo(ctx, currentDate, i)
+		buyer.tryTo(ctx, currentDate, i)
 		
 		// TryToBuy(currentDate, i); -- ???
 	}
@@ -78,7 +107,8 @@ function Bye(ctx) {
 	ctx.deposit.forEach((el) => depositMoney += el.vol_usd);
 	
 	console.log("Your deposit value: ", depositMoney);
-	console.log("Your full value: ", ctx.money+depositMoney);
+	console.log("Your wallet value: ", ctx.wallet);
+	console.log("Your full value: ", ctx.money+depositMoney+ctx.wallet);
 	
 	console.log("Your deposit: ", ctx.deposit);
 	

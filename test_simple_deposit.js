@@ -41,18 +41,15 @@ function DepositRemove(ctx, dep, rec) {
 }
 
 function DepositPosByName(ctx, name) {
-	var pos = null;
-	
-	ctx.deposit.forEach((val, idx) => {
-		if (val.coin == name) {
-			pos = idx;
-		}
-	});
-	
-	return pos;
+	return ctx.deposit.findIndex((val) => val.coin == name);
+}
+
+function DepositByName(ctx, name) {
+	return ctx.deposit.find((val) => val.coin == name);
 }
 
 
 module.exports.remove = DepositRemove;
+module.exports.get = DepositByName;
 module.exports.byName = DepositPosByName;
 module.exports.add = DepositAdd;
