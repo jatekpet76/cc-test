@@ -6,6 +6,7 @@ var init = require('./test_simple_init.js');
 var buyer = require('./test_simple_buyer.js');
 var seller = require('./test_simple_seller.js');
 var hist = require('./test_simple_history.js');
+var stat = require('./test_simple_stat.js');
 
 
 /*
@@ -96,6 +97,8 @@ function ScanDays(ctx) {
 		// TryToBuy(currentDate, i); -- ???
 	}
 	
+	stat.calc(ctx);
+	
 	Bye(ctx);
 }	
 
@@ -115,3 +118,4 @@ function Bye(ctx) {
 	conn.end();
 	console.log("Bye");
 }
+

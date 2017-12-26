@@ -22,7 +22,7 @@ function TryToBuy(ctx, currentDate, dayPos) {
 			var rec = ctx.rec(ctx, coin);
 			var hrec = hist.get(ctx, coin);
 			
-			if (dep == null && dayPos != 0) { // Do not have this kind of deposit
+			if (rec && dep == null && dayPos != 0) { // Do not have this kind of deposit
 				if (rec.price_usd != null && hrec.price_usd*ctx.sellRate > rec.price_usd) {
 					var piece = (ctx.money < 50? ctx.money: ctx.money * 0.3) / rec.price_usd;
 					

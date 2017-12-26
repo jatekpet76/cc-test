@@ -12,19 +12,21 @@ function TryToSell(ctx, currentDate, dayPos) {
 		
 		var rec = ctx.rec(ctx, dep.coin);
 		
-		dep.vol_usd = dep.piece*rec.price_usd;
-		dep.vol_btc = dep.piece*rec.price_btc;
-		
-		if (dep.price_usd*ctx.buyRate < rec.price_usd) {
-			console.log(
-				currentDate,
-				dep.coin,
-				dep.price_usd*ctx.buyRate < rec.price_usd, 
-				rec.price_usd / (dep.price_usd / 100), 
-				dep.price_usd, 
-				rec.price_usd);
+		if (rec) {
+			dep.vol_usd = dep.piece*rec.price_usd;
+			dep.vol_btc = dep.piece*rec.price_btc;
 			
-			removes.push({dep, rec});
+			if (dep.price_usd*ctx.buyRate < rec.price_usd) {
+				console.log(
+					currentDate,
+					dep.coin,
+					dep.price_usd*ctx.buyRate < rec.price_usd, 
+					rec.price_usd / (dep.price_usd / 100), 
+					dep.price_usd, 
+					rec.price_usd);
+				
+				removes.push({dep, rec});
+			}
 		}
 	});
 	
